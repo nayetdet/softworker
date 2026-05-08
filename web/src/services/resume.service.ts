@@ -1,5 +1,6 @@
 import { mapValidationIssues, type ValidationState } from '@/mappers/resume.mapper'
 import { resumeSchema } from '@/schemas/resume.schema'
+import type { ResumeLanguage } from '@/services/preview.service'
 
 export type JsonPrimitive = boolean | number | string | null
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[]
@@ -14,11 +15,11 @@ export function formatJson(value: JsonObject): string {
   return JSON.stringify(value, null, 2)
 }
 
-export function parseResumeJson(value: string): JsonObject {
+export function parseResumeJson(value: string, language: ResumeLanguage): JsonObject {
   const parsed: JsonValue = JSON.parse(value) as JsonValue
 
   if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') {
-    throw new Error('O JSON precisa ser um objeto.')
+    throw new Error(language === 'en_US' ? 'JSON must be an object.' : 'JSON precisa ser um objeto.')
   }
 
   return parsed as JsonObject
@@ -97,7 +98,7 @@ export function removeArrayItem(target: JsonObject, path: string[], index: numbe
   )
 }
 
-export function validateResume(resume: JsonObject): ValidationState {
+export function validateResume(resume: JsonObject, language: ResumeLanguage): ValidationState {
   const result = resumeSchema.safeParse(resume)
 
   if (result.success) {
@@ -107,5 +108,5 @@ export function validateResume(resume: JsonObject): ValidationState {
     }
   }
 
-  return mapValidationIssues(result.error.issues)
+  return mapValidationIssues(result.error.issues, language)
 }

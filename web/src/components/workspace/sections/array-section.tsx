@@ -3,6 +3,7 @@ import { CollapsibleSectionPanel } from '@/components/workspace/sections/collaps
 import { Button } from '@/components/ui/button'
 import { getAtPath } from '@/services/resume.service'
 import type { ArraySectionDefinition } from '@/services/resume-form.service'
+import { getUiStrings } from '@/services/ui-i18n.service'
 import { useFormStore } from '@/stores/form.store'
 import { useResumeStore } from '@/stores/resume.store'
 import { useEffect, useState, type ReactElement } from 'react'
@@ -23,6 +24,8 @@ function ArraySectionItem({
   onRemove: () => void
 }): ReactElement {
   const itemErrorCount = useResumeStore((state) => state.validationIssueCounts[`${path.join('.')}.${index}`] ?? 0)
+  const language = useResumeStore((state) => state.language)
+  const ui = getUiStrings(language)
 
   return (
     <article
@@ -44,7 +47,7 @@ function ArraySectionItem({
             className="border-border bg-muted/40 text-foreground hover:bg-muted/70"
             onClick={onRemove}
           >
-            Remover
+            {ui.listRemoveButton}
           </Button>
         </div>
       </div>
@@ -70,6 +73,8 @@ export function ArraySection({ section }: { section: ArraySectionDefinition }): 
   })
   const addArrayItem = useResumeStore((state) => state.addArrayItem)
   const removeArrayItem = useResumeStore((state) => state.removeArrayItem)
+  const language = useResumeStore((state) => state.language)
+  const ui = getUiStrings(language)
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null)
 
   function focusNewItem(nextIndex: number): void {
@@ -121,24 +126,26 @@ export function ArraySection({ section }: { section: ArraySectionDefinition }): 
   return (
     <CollapsibleSectionPanel
       title={section.title}
-      subtitle={
-        errorCount > 0
-          ? `${itemCount} ${itemCount === 1 ? 'item' : 'itens'} com ajuste`
-          : `${itemCount} ${itemCount === 1 ? 'item' : 'itens'}`
-      }
+      subtitle={`${itemCount} ${itemCount === 1 ? ui.arrayItemCountOne : ui.arrayItemCountOther}`}
       sectionId={sectionId}
       headingId={headingId}
       contentId={contentId}
       isOpen={isOpen}
       onToggle={() => toggleSection(key, !isOpen)}
-      status={errorCount > 0 ? <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">Revisão pendente</span> : undefined}
+      status={
+        errorCount > 0 ? (
+          <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+            {language === 'en_US' ? 'Pending review' : 'Revisão pendente'}
+          </span>
+        ) : undefined
+      }
       actions={
         <Button
           variant="outline"
           size="sm"
           className="size-8 rounded-full border-border/80 bg-background p-0 text-base leading-none text-muted-foreground shadow-none hover:border-border hover:bg-accent/50 hover:text-foreground"
-          aria-label={`Adicionar ${section.itemTitle.toLocaleLowerCase('pt-BR')}`}
-          title={`Adicionar ${section.itemTitle.toLocaleLowerCase('pt-BR')}`}
+          aria-label={ui.addItemAria.replace('{item}', section.itemTitle.toLocaleLowerCase(language === 'en_US' ? 'en-US' : 'pt-BR'))}
+          title={ui.addItemTitle.replace('{item}', section.itemTitle.toLocaleLowerCase(language === 'en_US' ? 'en-US' : 'pt-BR'))}
           onClick={handleAddItem}
         >
           +
@@ -152,12 +159,12 @@ export function ArraySection({ section }: { section: ArraySectionDefinition }): 
     >
       {itemCount === 0 ? (
         <p className="rounded-lg border border-dashed border-border/70 bg-background/70 px-4 py-5 text-sm leading-6 text-muted-foreground">
-          Nenhum item ainda. Use o botão `+` para adicionar o primeiro.
+          {ui.arraySectionEmpty}
         </p>
       ) : (
         <>
           <p className="text-[0.8rem] leading-[1.45] text-muted-foreground">
-            Use um item por linha nos campos de lista.
+            {ui.arraySectionHint}
           </p>
 
           <div className="grid gap-3">

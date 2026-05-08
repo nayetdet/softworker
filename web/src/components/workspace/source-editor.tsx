@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import { parseResumeJson } from '@/services/resume.service'
+import { getUiStrings } from '@/services/ui-i18n.service'
 import { useFormStore } from '@/stores/form.store'
 import { useResumeStore } from '@/stores/resume.store'
 import { useMemo, useState, type ChangeEvent, type ReactElement, type ReactNode } from 'react'
@@ -81,6 +82,8 @@ export function SourceEditor(): ReactElement {
   const setJsonStatusMessage = useFormStore((state) => state.setJsonStatusMessage)
   const setResumeDraft = useResumeStore((state) => state.setResumeDraft)
   const validationIssueCount = useResumeStore((state) => state.validationState.issues.length)
+  const language = useResumeStore((state) => state.language)
+  const ui = getUiStrings(language)
   const [scrollTop, setScrollTop] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
 
@@ -119,7 +122,7 @@ export function SourceEditor(): ReactElement {
 
         <textarea
           id="resume-source"
-          aria-label="Fonte JSON do currículo"
+          aria-label={language === 'en_US' ? 'Resume JSON source' : 'Fonte JSON do currículo'}
           spellCheck={false}
           value={value}
           onScroll={(event): void => {
@@ -132,11 +135,11 @@ export function SourceEditor(): ReactElement {
             setJsonDraft(nextValue)
 
             try {
-              setResumeDraft(parseResumeJson(nextValue))
+              setResumeDraft(parseResumeJson(nextValue, language))
               clearJsonStatus()
             } catch (error) {
               const errorMessage = error instanceof Error ? error.message : 'JSON inválido.'
-              setJsonStatusMessage(`JSON inválido: ${errorMessage}`)
+              setJsonStatusMessage(`${ui.sourceInvalidJsonPrefix} ${errorMessage}`)
             }
           }}
           className="relative z-10 h-full w-full resize-none overflow-auto bg-transparent px-4 py-3 font-mono text-[0.8rem] leading-6 text-transparent caret-emerald-300 outline-none selection:bg-emerald-400/25 selection:text-transparent"

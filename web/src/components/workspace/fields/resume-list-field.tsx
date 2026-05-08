@@ -2,6 +2,8 @@ import { useState, type ChangeEvent, type ClipboardEvent, type KeyboardEvent, ty
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import { getUiStrings } from '@/services/ui-i18n.service'
+import { useResumeStore } from '@/stores/resume.store'
 
 function parseListInput(value: string): string[] {
   return value
@@ -20,6 +22,8 @@ export function ResumeListField({
   onValueChange: (items: string[]) => void
 }): ReactElement {
   const [draftValue, setDraftValue] = useState('')
+  const language = useResumeStore((state) => state.language)
+  const ui = getUiStrings(language)
 
   function appendItems(rawValue: string): boolean {
     const nextItems = parseListInput(rawValue)
@@ -67,7 +71,7 @@ export function ResumeListField({
     <div className="rounded-xl border border-border/80 bg-card p-4 shadow-sm ring-1 ring-inset ring-border/40">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-foreground">Itens da lista</p>
+          <p className="text-sm font-semibold text-foreground">{ui.listTitle}</p>
         </div>
       </div>
 
@@ -80,7 +84,7 @@ export function ResumeListField({
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             spellCheck={false}
-            placeholder="Digite um item e pressione Enter"
+            placeholder={ui.listPlaceholder}
             className="h-11 bg-background"
           />
         </div>
@@ -107,19 +111,19 @@ export function ResumeListField({
                   size="sm"
                   onClick={() => handleRemoveItem(index)}
                   className="shrink-0 border-border/90 bg-card text-foreground shadow-sm transition-colors hover:bg-muted"
-                  aria-label={`Remover ${item}`}
-                  title={`Remover item: ${item}`}
+                  aria-label={ui.listRemoveAriaPrefix.replace('{item}', item)}
+                  title={ui.listRemoveAriaPrefix.replace('{item}', item)}
                 >
-                  Remover
+                  {ui.listRemoveButton}
                 </Button>
               </div>
             ))}
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-border/70 bg-background px-4 py-5">
-            <p className="text-sm font-medium text-foreground">Nenhum item adicionado ainda.</p>
+            <p className="text-sm font-medium text-foreground">{ui.listEmptyTitle}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Use o campo acima para criar a lista. Espaços dentro do item continuam intactos.
+              {ui.listEmptyDescription}
             </p>
           </div>
         )}

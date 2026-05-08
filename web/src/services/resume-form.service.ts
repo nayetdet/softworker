@@ -269,7 +269,7 @@ export const ARRAY_SECTIONS: ArraySectionDefinition[] = [
   },
 ]
 
-const FORM_SECTION_ORDER: readonly string[] = [
+export const FORM_SECTION_ORDER: readonly string[] = [
   'basics',
   'basics.profiles',
   'skills',

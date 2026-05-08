@@ -2,6 +2,7 @@ import { ResumeFieldList } from '@/components/workspace/fields/resume-field-list
 import { CollapsibleSectionPanel } from '@/components/workspace/sections/collapsible-section-panel'
 import { Badge } from '@/components/ui/badge'
 import type { NestedSectionDefinition, ObjectSectionDefinition } from '@/services/resume-form.service'
+import { getUiStrings } from '@/services/ui-i18n.service'
 import { useFormStore } from '@/stores/form.store'
 import { useResumeStore } from '@/stores/resume.store'
 import type { ReactElement } from 'react'
@@ -14,6 +15,7 @@ function NestedSection({
   section: NestedSectionDefinition
 }): ReactElement {
   const errorCount = useResumeStore((state) => state.validationIssueCounts[`${parentKey}.${section.key}`] ?? 0)
+  const language = useResumeStore((state) => state.language)
 
   return (
     <section className="rounded-xl border border-border/70 bg-background/80 p-4">
@@ -21,7 +23,7 @@ function NestedSection({
         <h3 className="text-[0.92rem] font-extrabold leading-[1.18]">{section.title}</h3>
         {errorCount > 0 ? (
           <Badge className="border-rose-200 bg-rose-50 text-rose-700">
-            {errorCount} {errorCount === 1 ? 'ajuste' : 'ajustes'}
+            {errorCount} {language === 'en_US' ? (errorCount === 1 ? 'issue' : 'issues') : errorCount === 1 ? 'ajuste' : 'ajustes'}
           </Badge>
         ) : null}
       </div>
@@ -40,11 +42,25 @@ export function ObjectSection({ section }: { section: ObjectSectionDefinition })
   const errorCount = useResumeStore((state) => state.validationIssueCounts[section.key] ?? 0)
   const isOpen = useFormStore((state) => state.openSections.has(section.key))
   const toggleSection = useFormStore((state) => state.toggleSection)
+  const language = useResumeStore((state) => state.language)
+  const ui = getUiStrings(language)
 
   return (
     <CollapsibleSectionPanel
       title={section.title}
-      subtitle={errorCount > 0 ? `${errorCount} ${errorCount === 1 ? 'ajuste pendente' : 'ajustes pendentes'}` : undefined}
+      subtitle={
+        errorCount > 0
+          ? `${errorCount} ${
+              language === 'en_US'
+                ? errorCount === 1
+                  ? 'pending fix'
+                  : 'pending fixes'
+                : errorCount === 1
+                  ? ui.validationAdjustOne
+                  : ui.validationAdjustOther
+            }`
+          : undefined
+      }
       sectionId={sectionId}
       headingId={headingId}
       contentId={contentId}

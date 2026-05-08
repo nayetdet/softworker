@@ -47,12 +47,12 @@ export interface ResumeState {
 
 const initialWorkspace = loadWorkspacePersistence()
 const initialResume = initialWorkspace.resumeDraft
-const initialValidationState = validateResume(initialResume)
+const initialValidationState = validateResume(initialResume, initialWorkspace.language)
 
 export const useResumeStore = create<ResumeState>()(
   immer((set, get) => {
     const commitResumeDraft = (resumeDraft: JsonObject): void => {
-      const validationState = validateResume(resumeDraft)
+      const validationState = validateResume(resumeDraft, get().language)
 
       set(() => ({
         resumeDraft,
@@ -74,8 +74,13 @@ export const useResumeStore = create<ResumeState>()(
       previewStatusMessage: '',
 
       setLanguage: (language: ResumeLanguage): void => {
+        const resumeDraft = get().resumeDraft
+        const validationState = validateResume(resumeDraft, language)
+
         set(() => ({
           language,
+          validationState,
+          validationIssueCounts: buildValidationIssueCounts(validationState.byPath),
         }))
       },
 
@@ -106,7 +111,12 @@ export const useResumeStore = create<ResumeState>()(
             previewStatusMessage: '',
           }))
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'Falha ao renderizar a pré-visualização.'
+          const message =
+            error instanceof Error
+              ? error.message
+              : language === 'en_US'
+                ? 'Failed to render the preview.'
+                : 'Falha ao renderizar a pré-visualização.'
 
           set(() => ({
             previewStatusMessage: message,

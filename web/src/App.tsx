@@ -7,13 +7,15 @@ import { ArraySection } from '@/components/workspace/sections/array-section'
 import { ObjectSection } from '@/components/workspace/sections/object-section'
 import { SourceEditor } from '@/components/workspace/source-editor'
 import { useEffect, type ReactElement } from 'react'
-import { FORM_SECTIONS } from '@/services/resume-form.service'
+import { getFormSections, syncI18nLanguage } from '@/services/ui-i18n.service'
 import { saveWorkspacePersistence } from '@/services/workspace-persistence.service'
 import { useFormStore, type FormState } from '@/stores/form.store'
 import { useResumeStore, type ResumeState } from '@/stores/resume.store'
 
 function App(): ReactElement {
   const mode = useFormStore((state) => state.mode)
+  const language = useResumeStore((state) => state.language)
+  const formSections = getFormSections(language)
 
   function persistCurrentWorkspace(): void {
     const snapshot = {
@@ -27,6 +29,7 @@ function App(): ReactElement {
   }
 
   useEffect(() => {
+    void syncI18nLanguage(language)
     persistCurrentWorkspace()
     void useResumeStore.getState().renderPreview()
 
@@ -51,7 +54,7 @@ function App(): ReactElement {
       unsubscribeResume()
       unsubscribeForm()
     }
-  }, [])
+  }, [language])
 
   return (
     <main className="min-h-screen px-2 py-2 sm:px-3 sm:py-3 xl:px-4 xl:py-4">
@@ -64,7 +67,7 @@ function App(): ReactElement {
             <SourceEditor />
           ) : (
             <div className="grid gap-3 overflow-auto p-3 sm:p-4">
-              {FORM_SECTIONS.map((section) =>
+              {formSections.map((section) =>
                 'key' in section ? (
                   <ObjectSection key={section.key} section={section} />
                 ) : (

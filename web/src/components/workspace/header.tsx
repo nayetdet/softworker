@@ -3,6 +3,7 @@ import { Select } from '@/components/ui/select'
 import type { ChangeEvent, ReactElement } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { PREVIEW_LANGUAGES, type ResumeLanguage } from '@/services/preview.service'
+import { getUiStrings } from '@/services/ui-i18n.service'
 import { useResumeStore } from '@/stores/resume.store'
 
 export function WorkspaceHeader(): ReactElement {
@@ -10,8 +11,9 @@ export function WorkspaceHeader(): ReactElement {
     useShallow((state) => ({
       language: state.language,
       setLanguage: state.setLanguage,
-    })),
+      })),
   )
+  const ui = getUiStrings(language)
 
   return (
     <header className="grid gap-4 border-b border-border/70 bg-card px-4 py-5 sm:px-5 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:items-end">
@@ -20,7 +22,7 @@ export function WorkspaceHeader(): ReactElement {
           href="https://github.com/nayetdet/softworker"
           target="_blank"
           rel="noreferrer"
-          aria-label="Abrir repositório do SoftWorker no GitHub"
+          aria-label={ui.repoAriaLabel}
           className="inline-flex max-w-full items-center gap-2 text-[0.7rem] font-extrabold uppercase tracking-[0.12em] text-primary transition-colors hover:text-primary/80"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4 fill-current">
@@ -30,17 +32,19 @@ export function WorkspaceHeader(): ReactElement {
         </a>
         <div className="space-y-2">
           <h1 className="text-[clamp(1.45rem,1.75vw,1.9rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-balance">
-            Editor de currículos
+            {language === 'en_US' ? 'Resume editor' : 'Editor de currículos'}
           </h1>
           <p className="max-w-2xl text-[0.9rem] leading-6 text-muted-foreground sm:text-[0.92rem]">
-            Edite os dados e acompanhe o documento final sem sair da mesma tela.
+            {language === 'en_US'
+              ? 'Edit the data and track the final document without leaving the same screen.'
+              : 'Edite os dados e acompanhe o documento final sem sair da mesma tela.'}
           </p>
         </div>
       </div>
 
       <div className="grid gap-2 rounded-lg border border-border/70 bg-background/80 p-3 shadow-none sm:p-4">
         <Label htmlFor="language-select" className="text-[0.7rem] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-          Idioma
+          {ui.languageLabel}
         </Label>
         <Select
           id="language-select"
@@ -50,7 +54,7 @@ export function WorkspaceHeader(): ReactElement {
         >
           {PREVIEW_LANGUAGES.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {ui.languageNames[option.value]}
             </option>
           ))}
         </Select>

@@ -12,10 +12,12 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
     "handlebars": "^4.7.9",
+    "i18next": "^26.0.10",
     "immer": "^10.2.0",
     "jsonata": "^2.1.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-i18next": "^17.0.7",
     "tailwindcss": "^4.2.4",
     "zod": "^4.4.2",
     "zustand": "^5.0.12"

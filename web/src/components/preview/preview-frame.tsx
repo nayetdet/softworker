@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type ReactElement, type RefObject } from 'react'
+import { useResumeStore } from '@/stores/resume.store'
+import { getUiStrings } from '@/services/ui-i18n.service'
 
 const A4_WIDTH: number = 794
 const BOTTOM_GAP: number = 32
@@ -15,6 +17,8 @@ export function PreviewFrame({
   const containerRef: RefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null)
   const [contentHeight, setContentHeight] = useState<number>(1123)
   const [scale, setScale] = useState<number>(1)
+  const language = useResumeStore((state) => state.language)
+  const ui = getUiStrings(language)
 
   useEffect(() => {
     const element: HTMLDivElement | null = containerRef.current
@@ -69,7 +73,7 @@ export function PreviewFrame({
           <iframe
             ref={previewFrameRef}
             id={iframeId}
-            title="Pré-visualização do currículo"
+            title={ui.previewFrameTitle}
             scrolling="no"
             className="absolute top-0 left-0 rounded-[1.25rem] border border-slate-200 bg-white shadow-[0_1px_2px_rgb(15_23_42/0.05)]"
             style={{
