@@ -19,7 +19,7 @@ const sizeClasses: Record<ButtonSize, string> = {
   icon: 'size-9',
 }
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant
   size?: ButtonSize
 }

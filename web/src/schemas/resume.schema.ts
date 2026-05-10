@@ -1,82 +1,18 @@
 import { z } from 'zod'
-
-const optionalString = z.string().optional()
-const requiredString = z.string().trim().min(1, 'Campo obrigatório.')
-const optionalUrl = z.string().trim().url('URL inválida.').or(z.literal('')).optional()
-const stringList = z.array(z.string())
-const emailSchema = z.email('E-mail inválido.')
-const urlSchema = z.url('URL inválida.')
-
-function isValidIsoDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return false
-  }
-
-  const parsed = new Date(`${value}T00:00:00`)
-  return !Number.isNaN(parsed.getTime())
-}
-
-const requiredEmail = z.string().trim().superRefine((value, ctx) => {
-  if (value.length === 0) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Campo obrigatório.',
-    })
-    return
-  }
-
-  if (!emailSchema.safeParse(value).success) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'E-mail inválido.',
-    })
-  }
-})
-
-const requiredUrl = z.string().trim().superRefine((value, ctx) => {
-  if (value.length === 0) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Campo obrigatório.',
-    })
-    return
-  }
-
-  if (!urlSchema.safeParse(value).success) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'URL inválida.',
-    })
-  }
-})
-
-const requiredDate = z.string().trim().superRefine((value, ctx) => {
-  if (value.length === 0) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Campo obrigatório.',
-    })
-    return
-  }
-
-  if (!isValidIsoDate(value)) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Data inválida.',
-    })
-  }
-})
-
-const optionalDate = z.preprocess(
-  (value) => {
-    if (value == null || value === '') {
-      return undefined
-    }
-
-    return value
-  },
-  z.string().trim().refine(isValidIsoDate, { message: 'Data inválida.' }).optional(),
-)
+import type { JsonObject } from '@/types/resume/json/json-object'
+import type { ResumeLanguage } from '@/types/ui/resume-language'
+import { mapValidationIssues } from '@/mappers/resume/resume.mapper'
+import type { ValidationState } from '@/types/resume/validation/state'
+import {
+  optionalDate,
+  optionalString,
+  optionalUrl,
+  requiredDate,
+  requiredEmail,
+  requiredString,
+  requiredUrl,
+  stringList,
+} from '@/schemas/resume-field.schema'
 
 const basicsProfileSchema = z.object({
   network: requiredString,
@@ -214,3 +150,16 @@ export const resumeSchema = z.object({
   projects: z.array(projectSchema).optional(),
   certificates: z.array(certificateSchema).optional(),
 })
+
+export function validateResume(resume: JsonObject, language: ResumeLanguage): ValidationState {
+  const result = resumeSchema.safeParse(resume)
+
+  if (result.success) {
+    return {
+      byPath: {},
+      issues: [],
+    }
+  }
+
+  return mapValidationIssues(result.error.issues, language)
+}

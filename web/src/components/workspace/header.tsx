@@ -1,19 +1,18 @@
+'use client'
+
+import type { WorkspaceViewModel } from '@/stores/workspace.store'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import type { ReactElement } from 'react'
-import { PREVIEW_LANGUAGES } from '@/services/preview.service'
-import type { ResumeLanguage } from '@/services/preview.service'
-import { type UiStrings } from '@/services/ui-i18n.service'
+import { useWorkspaceHeader } from '@/hooks/workspace/use-workspace-header'
 
-export function WorkspaceHeader({
-  language,
-  setLanguage,
-  ui,
-}: {
-  language: ResumeLanguage
-  setLanguage: (language: ResumeLanguage) => void
-  ui: UiStrings
-}): ReactElement {
+type WorkspaceHeaderProps = {
+  workspace: WorkspaceViewModel
+}
+
+export function WorkspaceHeader({ workspace }: WorkspaceHeaderProps): React.JSX.Element {
+  const { ui } = workspace
+  const { handleLanguageChange } = useWorkspaceHeader()
+
   return (
     <header className="grid gap-4 border-b border-border/70 bg-card px-4 py-5 sm:px-5 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:items-end">
       <div className="space-y-3">
@@ -45,11 +44,10 @@ export function WorkspaceHeader({
         </Label>
         <Select
           id="language-select"
-          className="min-h-11 border-border/80 bg-card font-medium"
-          value={language}
-          onValueChange={setLanguage}
+          value={workspace.language}
+          onValueChange={handleLanguageChange}
         >
-          {PREVIEW_LANGUAGES.map((option) => (
+          {workspace.languageOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {ui.languageNames[option.value]}
             </option>

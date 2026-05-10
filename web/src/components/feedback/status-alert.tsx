@@ -1,17 +1,22 @@
+'use client'
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import type { ReactElement } from 'react'
-import { type UiStrings } from '@/services/ui-i18n.service'
-import type { ValidationIssue } from '@/mappers/resume.mapper'
+import type { WorkspaceViewModel } from '@/stores/workspace.store'
+import { getStatusAlertState } from '@/mappers/workspace/status-alert.mapper'
 
 type StatusAlertProps = {
-  message: string
-  ui: UiStrings
-  validationIssues: ValidationIssue[]
+  workspace: WorkspaceViewModel
 }
 
-export function StatusAlert({ message, ui, validationIssues }: StatusAlertProps): ReactElement | null {
+export function StatusAlert({ workspace }: StatusAlertProps): React.JSX.Element | null {
+  const { ui } = workspace
+  const { issues, message } = getStatusAlertState({
+    jsonStatusMessage: workspace.jsonStatusMessage,
+    previewStatusMessage: workspace.previewStatusMessage,
+    validationIssues: workspace.validationState.issues,
+  })
 
-  if (!message && validationIssues.length === 0) {
+  if (!message && issues.length === 0) {
     return null
   }
 
@@ -20,9 +25,9 @@ export function StatusAlert({ message, ui, validationIssues }: StatusAlertProps)
       <Alert variant="destructive">
         <AlertTitle>{ui.statusTitle}</AlertTitle>
         {message ? <AlertDescription>{message}</AlertDescription> : null}
-        {validationIssues.length > 0 ? (
+        {issues.length > 0 ? (
           <ul className="mt-3 list-disc space-y-1 pl-4 text-sm text-destructive">
-            {validationIssues.map((issue) => (
+            {issues.map((issue) => (
               <li key={`${issue.path}:${issue.message}`}>
                 <strong>{issue.label}</strong>: {issue.message}
               </li>

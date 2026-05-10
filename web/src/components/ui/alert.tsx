@@ -11,9 +11,7 @@ export function Alert({
     <div
       className={cn(
         'relative w-full rounded-lg border px-4 py-3 text-[0.92rem] leading-6',
-        variant === 'destructive'
-          ? 'border-destructive/30 bg-destructive/10 text-destructive'
-          : 'bg-card text-card-foreground',
+        variant === 'destructive' ? 'border-destructive/30 bg-destructive/10 text-destructive' : 'bg-card text-card-foreground',
         className,
       )}
       {...props}
@@ -28,3 +26,4 @@ export function AlertTitle({ className, ...props }: HTMLAttributes<HTMLHeadingEl
 export function AlertDescription({ className, ...props }: HTMLAttributes<HTMLDivElement>): ReactElement {
   return <div className={cn('text-[0.92rem] leading-6 [&_p]:leading-relaxed', className)} {...props} />
 }
+

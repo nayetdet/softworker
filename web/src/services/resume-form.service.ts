@@ -1,39 +1,7 @@
-import type { JsonObject } from '@/services/resume.service'
-
-export type FieldType = 'date' | 'email' | 'list' | 'phone' | 'text' | 'textarea' | 'url'
-
-export interface FieldDefinition {
-  key: string
-  label: string
-  type?: FieldType
-  full?: boolean
-  required?: boolean
-}
-
-export interface NestedSectionDefinition {
-  key: string
-  title: string
-  fields: FieldDefinition[]
-}
-
-export interface ObjectSectionDefinition {
-  key: string
-  title: string
-  fields: FieldDefinition[]
-  nested?: NestedSectionDefinition[]
-}
-
-export interface ArraySectionDefinition {
-  path: string[]
-  title: string
-  itemTitle: string
-  createItem: () => JsonObject
-  fields: FieldDefinition[]
-}
-
-export type SectionDefinition = ObjectSectionDefinition | ArraySectionDefinition
-
-export type ValidationIssueCounts = Record<string, number>
+import type { ArraySectionDefinition } from '@/types/resume/sections/array/array-section-definition'
+import type { ObjectSectionDefinition } from '@/types/resume/sections/object/object-section-definition'
+import type { SectionDefinition } from '@/types/resume/sections/shared/section-definition'
+import type { ValidationIssueCounts } from '@/types/resume/sections/shared/validation-issue-counts'
 
 export const OBJECT_SECTIONS: ObjectSectionDefinition[] = [
   {
@@ -264,60 +232,19 @@ export const ARRAY_SECTIONS: ArraySectionDefinition[] = [
     createItem: () => ({ name: '', reference: '' }),
     fields: [
       { key: 'name', label: 'Nome', required: true },
-      { key: 'reference', label: 'Texto', required: true, type: 'textarea', full: true },
+      { key: 'reference', label: 'Referência', type: 'textarea', full: true },
     ],
   },
 ]
 
-export const FORM_SECTION_ORDER: readonly string[] = [
-  'basics',
-  'basics.profiles',
-  'skills',
-  'work',
-  'volunteer',
-  'projects',
-  'education',
-  'certificates',
-  'languages',
-  'awards',
-  'publications',
-  'interests',
-  'references',
-  'meta',
-] as const
+export const FORM_SECTIONS: SectionDefinition[] = [...OBJECT_SECTIONS, ...ARRAY_SECTIONS]
 
-const SECTION_DEFINITIONS_BY_KEY: Map<string, ObjectSectionDefinition | ArraySectionDefinition> = new Map(
-  [...OBJECT_SECTIONS, ...ARRAY_SECTIONS].map((section) => [
-    'key' in section ? section.key : section.path.join('.'),
-    section,
-  ]),
-)
+export function buildValidationIssueCounts(issues: Record<string, string[]>): ValidationIssueCounts {
+  const result: ValidationIssueCounts = {}
 
-export const FORM_SECTIONS: SectionDefinition[] = FORM_SECTION_ORDER.map((key) => {
-  const section: ObjectSectionDefinition | ArraySectionDefinition | undefined = SECTION_DEFINITIONS_BY_KEY.get(key)
-
-  if (!section) {
-    throw new Error(`Seção de formulário não encontrada para a chave "${key}".`)
+  for (const [path, messages] of Object.entries(issues)) {
+    result[path] = messages.length
   }
 
-  return section
-})
-
-export function buildValidationIssueCounts(validationErrors: Record<string, string[]>): ValidationIssueCounts {
-  const issueCounts: ValidationIssueCounts = {}
-
-  for (const [path, messages] of Object.entries(validationErrors)) {
-    if (messages.length === 0) {
-      continue
-    }
-
-    const segments: string[] = path.split('.')
-
-    for (let index: number = 0; index < segments.length; index += 1) {
-      const prefix: string = segments.slice(0, index + 1).join('.')
-      issueCounts[prefix] = (issueCounts[prefix] ?? 0) + messages.length
-    }
-  }
-
-  return issueCounts
+  return result
 }

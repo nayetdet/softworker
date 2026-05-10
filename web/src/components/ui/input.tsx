@@ -14,3 +14,4 @@ export function Input({ className, type = 'text', ...props }: InputHTMLAttribute
     />
   )
 }
+

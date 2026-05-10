@@ -4,7 +4,6 @@
   "image": "mcr.microsoft.com/devcontainers/base:bookworm",
 
   "mounts": [
-    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind",
     "source=${localEnv:HOME}/.codex,target=/home/vscode/.codex,type=bind"
   ],
 
