@@ -1,6 +1,6 @@
 [project]
 name = "softworker"
-version = "1.0.0"
+version = "1.0.1"
 description = "Biblioteca Python para gerar currículos ATS-friendly em PDF a partir de dados estruturados em JSON."
 readme = "README.md"
 license = "GPL-3.0-or-later"
