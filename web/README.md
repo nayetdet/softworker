@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SoftWorker Web
 
-## Getting Started
+Interface local do SoftWorker para editar currículos e acompanhar a pré-visualização do PDF em tempo real.
 
-First, run the development server:
+## Requisitos
+
+- Node.js 22+ recomendado
+- npm 10+
+
+## Rodando localmente
+
+Na pasta `web/`:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Fluxo de desenvolvimento
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+O editor oferece dois modos:
 
-## Learn More
+- `Formulário`: edição estruturada dos campos do currículo
+- `JSON`: edição direta da fonte JSON
 
-To learn more about Next.js, take a look at the following resources:
+A coluna da direita renderiza a pré-visualização do documento final e também permite baixar:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `Baixar JSON`
+- `Baixar PDF`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Checks úteis
 
-## Deploy on Vercel
+```bash
+npm run lint
+npm run typecheck
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Estrutura resumida
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/app/`: shell principal da aplicação
+- `src/components/workspace/`: editor, cabeçalho e seções
+- `src/components/preview/`: painel e frame da pré-visualização
+- `src/server/services/`: renderização HTML/PDF usada pela interface
+
+Para instruções do repositório inteiro, incluindo a CLI Python, veja o README da raiz.

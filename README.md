@@ -21,20 +21,47 @@ Primeira página do PDF gerado com o exemplo principal do projeto:
 ## Requisitos
 
 - Python 3.14+
+- Node.js 22+ recomendado para a interface web em `web/`
 - Dependências nativas do WeasyPrint instaladas no sistema
 
-## Uso rápido
+## Desenvolvimento local
 
-Instale a biblioteca via `pip`:
+O repositório tem duas partes:
+
+- `src/softworker/`: biblioteca e CLI em Python
+- `web/`: editor visual em Next.js para rodar em `localhost`
+
+### 1. Preparar o ambiente Python
+
+O projeto usa `pyproject.toml` + `uv.lock` como fonte de verdade das dependências. Não existe `requirements.txt` porque o fluxo principal de desenvolvimento é com `uv`.
+
+Se você tiver `uv` instalado:
 
 ```bash
-pip install softworker
+uv sync
 ```
+
+Se preferir usar `pip`, também funciona para contribuir localmente:
+
+```bash
+python -m venv .venv
+python -m pip install -e .
+```
+
+Se preferir isolar o ambiente, ative a virtualenv antes do `pip install -e .` com o comando equivalente ao seu sistema operacional.
+
+### 2. Rodar a CLI localmente
 
 Gere o PDF usando o exemplo principal:
 
 ```bash
 uv run python -m softworker docs/examples/resume.json
+```
+
+Fallback com `pip`/venv:
+
+```bash
+python -m softworker docs/examples/resume.json
 ```
 
 Por padrão, o arquivo é salvo no diretório atual com o mesmo nome base do JSON:
@@ -55,6 +82,43 @@ Se quiser renderizar em outro idioma:
 uv run python -m softworker docs/examples/resume.json /tmp/resume-en.pdf --resume-language en_US
 ```
 
+### 3. Rodar a interface web em localhost
+
+Em outro terminal:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Abra [http://localhost:3000](http://localhost:3000).
+
+O editor web permite:
+
+- editar o currículo em formulário
+- editar a fonte JSON diretamente
+- acompanhar a pré-visualização do PDF lado a lado
+- baixar o JSON ou o PDF gerado
+
+### 4. Checks úteis antes de abrir PR
+
+Frontend:
+
+```bash
+cd web
+npm run lint
+npm run typecheck
+```
+
+Biblioteca Python:
+
+```bash
+uv run python -m softworker docs/examples/resume.json
+```
+
+Se você estiver usando `pip` em vez de `uv`, substitua `uv run` pelos comandos `python -m ...` dentro do ambiente virtual.
+
 ## Estrutura principal
 
 - `docs/examples/resume.json`: exemplo principal
@@ -62,6 +126,7 @@ uv run python -m softworker docs/examples/resume.json /tmp/resume-en.pdf --resum
 - `docs/schema.json`: referência do formato esperado
 - `src/softworker/`: código da CLI, validação e renderização
 - `template/`: templates Handlebars, Jsonnet do template context, parciais e estilos CSS
+- `web/`: editor local em Next.js para desenvolvimento e testes visuais
 
 ## Como funciona
 

@@ -1,17 +1,23 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { getJsonSourceTokenClassName, type JsonSourceToken } from '@/mappers/resume/source/json-source-highlight'
-import type { WorkspaceViewModel } from '@/stores/workspace.store'
-import { useSourceEditor } from '@/hooks/workspace/source/use-source-editor'
-import { Textarea } from '@/components/ui/textarea'
+import Editor from "react-simple-code-editor";
+import { cn } from "@/lib/utils";
+import {
+  getJsonSourceTokenClassName,
+  tokenizeJsonSource,
+  type JsonSourceToken,
+} from "@/mappers/resume/source/json-source-highlight";
+import type { WorkspaceViewModel } from "@/stores/workspace.store";
+import { useSourceEditor } from "@/hooks/workspace/source/use-source-editor";
 
 type SourceEditorProps = {
-  workspace: WorkspaceViewModel
-}
+  workspace: WorkspaceViewModel;
+};
 
-export function SourceEditor({ workspace }: SourceEditorProps): React.JSX.Element {
-  const { highlightedJson, hasErrors, scrollLeft, scrollTop, handleChange, handleScroll } = useSourceEditor(workspace)
+export function SourceEditor({
+  workspace,
+}: SourceEditorProps): React.JSX.Element {
+  const { hasErrors, handleValueChange } = useSourceEditor(workspace);
 
   return (
     <section className="grid min-h-0 gap-4 overflow-auto p-3 sm:p-4">
@@ -23,54 +29,66 @@ export function SourceEditor({ workspace }: SourceEditorProps): React.JSX.Elemen
 
       <div
         className={cn(
-          'relative min-h-[42vh] overflow-hidden rounded-xl border border-slate-800/90 bg-slate-950 shadow-inner',
-          hasErrors ? 'border-destructive/70' : 'focus-within:ring-2 focus-within:ring-emerald-400/40',
+          "relative h-[42vh] overflow-hidden rounded-xl border border-slate-800/90 bg-slate-950 shadow-inner sm:h-[50vh] lg:h-[58vh] xl:h-[calc(100vh-15rem)]",
+          hasErrors
+            ? "border-destructive/70"
+            : "focus-within:ring-2 focus-within:ring-emerald-400/40",
         )}
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 overflow-hidden px-4 py-3 font-mono text-[0.8rem] leading-6"
-        >
-          <div
-            className="min-h-full whitespace-pre-wrap break-words text-slate-100"
-            style={{
-              transform: `translate(${-scrollLeft}px, ${-scrollTop}px)`,
-              willChange: 'transform',
-            }}
-          >
-            <pre className="m-0 whitespace-pre-wrap break-words">
-              {highlightedJson.map((token: JsonSourceToken, index: number) => {
-                const className = getJsonSourceTokenClassName(token.kind)
-
-                if (!className) {
-                  return token.value
-                }
-
-                return (
-                  <span key={`${index}-${token.value}`} className={className}>
-                    {token.value}
-                  </span>
-                )
-              })}
-            </pre>
-          </div>
-        </div>
-
-        <Textarea
-          id="resume-source"
-          aria-label={workspace.ui.sourceEditorAriaLabel}
-          spellCheck={false}
+        <Editor
           value={workspace.jsonDraft}
-          onScroll={handleScroll}
-          onChange={handleChange}
-          className="relative z-10 h-[42vh] min-h-[42vh] w-full resize-none overflow-auto rounded-none border-0 bg-transparent px-4 py-3 font-mono text-[0.8rem] leading-6 text-transparent caret-emerald-300 outline-none ring-0 shadow-none selection:bg-emerald-400/25 selection:text-transparent focus-visible:ring-0 sm:min-h-[50vh] lg:min-h-[58vh] xl:min-h-[calc(100vh-15rem)]"
+          onValueChange={handleValueChange}
+          highlight={(source) => renderHighlightedJson(source)}
+          padding={16}
+          textareaId="resume-source"
+          textareaClassName="!outline-none selection:!bg-emerald-400/25"
+          preClassName="selection:!bg-emerald-400/25"
+          tabSize={2}
+          insertSpaces
+          ignoreTabKey={false}
+          aria-label={workspace.ui.sourceEditorAriaLabel}
+          placeholder={workspace.jsonDraft.length === 0 ? "{}" : undefined}
           style={{
-            backgroundColor: 'transparent',
-            WebkitTextFillColor: 'transparent',
-            caretColor: 'rgb(110 231 183)',
+            fontFamily:
+              "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
+            fontSize: "0.8rem",
+            lineHeight: "1.5rem",
+            height: "100%",
+            backgroundColor: "rgb(2 6 23)",
+            color: "rgb(241 245 249)",
+            caretColor: "rgb(110 231 183)",
+            overflow: "auto",
+          }}
+          className="h-full w-full overflow-auto rounded-none bg-slate-950 text-slate-100"
+          onKeyDown={(event) => {
+            if (event.key === "Tab") {
+              event.stopPropagation();
+            }
           }}
         />
       </div>
     </section>
-  )
+  );
+}
+
+function renderHighlightedJson(source: string): React.JSX.Element {
+  const highlightedJson = tokenizeJsonSource(source);
+
+  return (
+    <>
+      {highlightedJson.map((token: JsonSourceToken, index: number) => {
+        const className = getJsonSourceTokenClassName(token.kind);
+
+        if (!className) {
+          return <span key={`${index}-${token.value}`}>{token.value}</span>;
+        }
+
+        return (
+          <span key={`${index}-${token.value}`} className={className}>
+            {token.value}
+          </span>
+        );
+      })}
+    </>
+  );
 }
